@@ -8094,15 +8094,19 @@ export class HUDScene extends Phaser.Scene {
             }
             
             // ═══════════════════════════════════════════════════════════════════
-            // GOLDEN CLOVER SINGLE-USE CHECK (MAIN GAME vs FREE-PLAY)
+            // GOLDEN CLOVER SINGLE-USE CHECK (MAIN GAME vs FREE-PLAY/ENDLESS)
             // ═══════════════════════════════════════════════════════════════════
             // Main Game (before Golden Key unlock): Single-use FOREVER
             // Free-Play (after Golden Key unlock): Reusable per level
+            // Endless Mode: Reusable per round
             // ═══════════════════════════════════════════════════════════════════
             
             const inFreePlayMode = this.goldenKeyActivated && this.allLevelsUnlockedByGoldenKey;
             
-            if (!inFreePlayMode) {
+            // ENDLESS MODE: Always allow (reusable per round)
+            // MAIN GAME: Check if used
+            // FREE-PLAY: Allow (reusable per level)
+            if (!this.isEndlessMode && !inFreePlayMode) {
                 // MAIN GAME MODE: Check if Golden Clover was EVER used
                 const goldenCloverUsedMainGame = localStorage.getItem('sheepMarket_goldenCloverUsed') === 'true';
                 

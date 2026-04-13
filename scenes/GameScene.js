@@ -5274,9 +5274,9 @@ export class GameScene extends Phaser.Scene {
         const inFreePlayMode = localStorage.getItem('sheepMarket_goldenKeyActivated') === 'true' && 
                                 localStorage.getItem('sheepMarket_allLevelsUnlocked') === 'true';
         
-        // Check if we're in Level 7+ OR free play mode
-        if (this.activeLevel < 7 && !inFreePlayMode) {
-            console.log('🐕 Cannot herd: not Level 7+ and not in free play mode');
+        // Check if we're in Level 7+, free play mode, OR endless mode
+        if (this.activeLevel < 7 && !inFreePlayMode && !this.isEndlessMode) {
+            console.log('🐕 Cannot herd: not Level 7+, not in free play mode, and not in endless mode');
             return;
         }
         
@@ -5776,9 +5776,9 @@ export class GameScene extends Phaser.Scene {
         const inFreePlayMode = localStorage.getItem('sheepMarket_goldenKeyActivated') === 'true' && 
                                 localStorage.getItem('sheepMarket_allLevelsUnlocked') === 'true';
         
-        // Black Sheep available in Level 10+ OR free play mode
-        if (this.activeLevel < 10 && !inFreePlayMode) {
-            console.log('🐑 Black Sheep placement not available: requires Level 10+ or free play mode');
+        // Black Sheep available in Level 10+, free play mode, OR endless mode
+        if (this.activeLevel < 10 && !inFreePlayMode && !this.isEndlessMode) {
+            console.log('🐑 Black Sheep placement not available: requires Level 10+, free play mode, or endless mode');
             return;
         }
         
@@ -6147,9 +6147,9 @@ export class GameScene extends Phaser.Scene {
         const inFreePlayMode = localStorage.getItem('sheepMarket_goldenKeyActivated') === 'true' && 
                                 localStorage.getItem('sheepMarket_allLevelsUnlocked') === 'true';
         
-        // Golden clover only in Level 10+ OR free play mode
-        if (this.activeLevel < 10 && !inFreePlayMode) {
-            console.log('🍀 Golden Clover not available in this level (not Level 10+ and not in free play mode)');
+        // Golden clover available in Level 10+, free play mode, OR endless mode
+        if (this.activeLevel < 10 && !inFreePlayMode && !this.isEndlessMode) {
+            console.log('🍀 Golden Clover not available in this level (not Level 10+, not in free play mode, and not in endless mode)');
             return;
         }
         
