@@ -57,7 +57,7 @@ export const WOOL_CONFIG = {
     // Minimum WOOL balance needed to advance FROM this level to the next.
     minWoolToAdvance: {
         1: 0,    // Tutorial – no gate
-        2: 2000,
+        2: 20,
         3: 50,
         4: 30,
         5: 40,
