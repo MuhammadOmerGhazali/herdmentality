@@ -1,0 +1,149 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                   HERD MENTALITY - DEVELOPER TOOLS                        ║
+║                           QUICK REFERENCE CARD                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 🚀 QUICK ACCESS                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Look for: 🛠️ (top-right corner)                                       │
+│  Click it → Menu opens                                                  │
+│  Choose tool → Start creating!                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 🎮 SANDBOX MODE - Test & Create Levels                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│  RIGHT PANEL:                     LEFT PANEL:                           │
+│    🐑 Sheep Behavior                🛠️ Tools                          │
+│       • Count (10-50)                  • 🌪️ Wind Zone               │
+│       • Speed (50-200)                 • 🐺 Wolf                     │
+│       • Stubbornness (0-1)             • 🚧 Obstacle                 │
+│       • Following (0-1)                • 🐑 Spawn Sheep              │
+│                                                                         │
+│    🌍 Environment                 TOP BUTTONS:                          │
+│       • Wind [toggle]                  • ⏸ PAUSE                      │
+│       • Wolves [toggle]                • ↻ RESET                      │
+│       • Obstacles [toggle]             • 💾 SAVE                      │
+│                                        • ✕ EXIT                       │
+│  LIVE PREVIEW:                                                          │
+│    Shows prices, balance, and stats updating in real-time              │
+│                                                                         │
+│  HELP: Press H for help overlay                                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ⚡ EVENT/EFFECT SYSTEM - Browse & Test Events                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│  CATEGORIES:                                                            │
+│    🌍 Environmental  │  🐑 Animals  │  🎵 Audio/Visual              │
+│                                                                         │
+│  EVENTS:                                                                │
+│    • Wind Gust        • Rain           • Sunshine                      │
+│    • Wolf Appears     • Golden Sheep   • Shepherd                      │
+│    • Sheep Bleat      • Call Alert     • Particles                     │
+│                                                                         │
+│  ACTIONS:                                                               │
+│    • Click event → See details                                         │
+│    • Click TEST → Try it out                                           │
+│    • Watch Activity Log → See what happened                            │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 🎵 AUDIO SYSTEM - Test Sound Balancing                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│  CONSOLE COMMANDS (Press F12):                                         │
+│    audioManager.help()              → Show all commands                │
+│    audioManager.testAudioBalancing()→ Interactive test                 │
+│    audioManager.debugAudioState()   → Current state                    │
+│    audioManager.getSoundInfo(name)  → Query sound                      │
+│    audioManager.getAllSounds()      → List all sounds                  │
+│                                                                         │
+│  SOUND PRIORITIES (High → Low):                                        │
+│    1. Critical Alerts (wolves, final call)                             │
+│    2. Important SFX (sheep bleats, calls)                              │
+│    3. Standard SFX (coins, clicks)                                     │
+│    4. Background (ambience, rain)                                      │
+│    5. Music (gets ducked most)                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 📖 HELP & GUIDE - Learn Everything                                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│  7 PAGES:                                                               │
+│    1. Welcome & Overview                                                │
+│    2. Sandbox Mode Intro                                                │
+│    3. Sandbox How-To                                                    │
+│    4. Event/Effect System                                               │
+│    5. Audio System                                                      │
+│    6. Tips & Tricks                                                     │
+│    7. Quick Reference                                                   │
+│                                                                         │
+│  NAVIGATION:                                                            │
+│    • Arrow Keys or Buttons                                              │
+│    • ESC to go back                                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ⌨️  KEYBOARD SHORTCUTS                                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ESC        → Close menu / Go back                                      │
+│  H          → Toggle help (in Sandbox)                                  │
+│  F12        → Open browser console                                      │
+│  Arrow Keys → Navigate Help Guide                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 🎯 COMMON TASKS                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│  TEST MORE SHEEP:                                                       │
+│    🛠️ → Sandbox → Move "Sheep Count" slider → Watch preview          │
+│                                                                         │
+│  SEE WHAT WOLF DOES:                                                    │
+│    🛠️ → Event System → Animals → Wolf → TEST                         │
+│                                                                         │
+│  TEST AUDIO:                                                            │
+│    🛠️ → Audio System → TEST AUDIO BALANCING → Listen                 │
+│                                                                         │
+│  LEARN EVERYTHING:                                                      │
+│    🛠️ → Help & Guide → Read all 7 pages                              │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ⚠️  IMPORTANT NOTES                                                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ✅ SAFE:  You can't break the game                                    │
+│  ✅ TEMPORARY: Changes don't affect live gameplay                      │
+│  ✅ UNDO: RESET button available everywhere                            │
+│  ✅ SAVE: Only saves if you click SAVE button                          │
+│  ✅ HELP: Always available - press H or check menu                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION                                                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│  QUICK (1 min):     DEV_TOOLS_QUICK_START.md                           │
+│  GUIDE (20 min):    DEVELOPER_TOOLS_GUIDE.md                           │
+│  COMPLETE (Full):   DEV_TOOLS_README.md                                │
+│  THIS CARD:         DEV_TOOLS_CHEAT_SHEET.txt                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 🎓 LEARNING PATH                                                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│  BEGINNERS:                     QUICK LEARNERS:                         │
+│   1. Read this card             1. Open any tool                        │
+│   2. Open Help Guide            2. Click around                         │
+│   3. Try Sandbox Mode           3. Read tooltips                        │
+│   4. Test some events           4. Experiment                           │
+│   5. Create!                    5. Check docs if stuck                  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  REMEMBER: These tools are designed to be SAFE and EASY to use!          ║
+║  Experiment freely - you can't break anything!                           ║
+║  Have fun creating and testing! 🎉                                       ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Print this card or keep it on screen for quick reference!
+Version 1.0 - Complete Developer Tools Suite

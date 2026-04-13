@@ -1,0 +1,16 @@
+{
+  "name": "sheep-market",
+  "version": "1.0.0",
+  "description": "Sheep Market – Phaser 3 prediction trading game",
+  "scripts": {
+    "start": "browser-sync start --server --index index.html --files '**/*.html, **/*.css, **/*.js' --no-notify --port 3000",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^4.1.2",
+    "browser-sync": "^3.0.3",
+    "fast-check": "^4.6.0",
+    "happy-dom": "^20.8.9",
+    "vitest": "^4.1.2"
+  }
+}
