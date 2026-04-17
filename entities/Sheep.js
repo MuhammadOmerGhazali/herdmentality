@@ -615,6 +615,13 @@ export class Sheep extends Phaser.GameObjects.Sprite {
     update(time, driftX, timeLeft, totalTime, activeLevel = 1, mudActive = false) {
         if (!this.body) return;
         
+        // FREEZE FOR END OF ROUND: Allow physics/tweens but stop AI decisions
+        if (this.scene.sheepFrozenForEnd) {
+            this.setDepth(this.y);
+            // Let velocity continue (for tween), but no new AI decisions
+            return;
+        }
+        
         // IMMUNE OUTLIER: Completely frozen - skip ALL updates
         if (this.isImmuneOutlier) {
             this.body.setVelocity(0, 0);
@@ -740,7 +747,9 @@ export class Sheep extends Phaser.GameObjects.Sprite {
 
         // Update facing direction only if moving significantly
         // Higher threshold prevents rapid flipping and visual jitter
-        if (Math.abs(this.body.velocity.x) > 50) {
+        // During victory march, use even higher threshold to prevent end-of-level glitching
+        const directionThreshold = this.isVictoryMarching ? 100 : 50;
+        if (Math.abs(this.body.velocity.x) > directionThreshold) {
             this.facingRight = this.body.velocity.x > 0;
         }
 
@@ -767,14 +776,15 @@ export class Sheep extends Phaser.GameObjects.Sprite {
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 
                 if (dist < 20) {
-                    // Arrived
+                    // Arrived - stop completely
                     this.body.setVelocity(0, 0);
                     this.victoryMoving = false;
                 } else {
                     // Move towards target
                     const angle = Math.atan2(dy, dx);
-                    // Add slight wobble for organic feel
-                    const wobble = Math.sin(time * 0.01) * 30;
+                    // Reduce wobble when close to target for smoother arrival
+                    const wobbleIntensity = Math.min(1, dist / 100); // Fade out wobble as we approach
+                    const wobble = Math.sin(time * 0.01) * 30 * wobbleIntensity;
                     
                     this.body.setVelocity(
                         Math.cos(angle) * this.victorySpeed, 

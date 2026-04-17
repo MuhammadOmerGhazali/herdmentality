@@ -24,6 +24,7 @@ export class GameScene extends Phaser.Scene {
         this.totalIdledCount = 0; // Cumulative count of idle events this round
         this.marketFatigue = 0; // 0 = Fresh, High = Ignored
         this.tutorialMode = false; // Tutorial Clamp Flag
+        this.sheepFrozenForEnd = false; // Flag to freeze sheep at end of round
     }
 
     init(data) {
@@ -81,6 +82,9 @@ export class GameScene extends Phaser.Scene {
         this.level12WinOverride = false;
         this.level12CelebrationComplete = false;
         this.goldenSheepActivated = false;
+        
+        // Reset sheep freeze flag
+        this.sheepFrozenForEnd = false;
 
         this.level12State = {
             phase: 'IDLE',
@@ -3415,6 +3419,11 @@ export class GameScene extends Phaser.Scene {
         
         this.friendlyDog = new Dog(this, startX, startY);
         
+        // Dog is moving from right to left, so DON'T flip (sprite actually faces left naturally)
+        this.friendlyDog.dogSprite.setFlipX(false);
+        this.friendlyDog.bone.x = -20; // Bone on left side
+        this.friendlyDog.bone.setRotation(0.2);
+        
         // Dog barks when entering scene from top right (Level 7 introduction sound - one-time)
         try {
             this.playSound('dog_bark', { volume: 0.6 });
@@ -5071,6 +5080,27 @@ export class GameScene extends Phaser.Scene {
         if (this.activeLevel === 2 && this.timeLeft === 10 && !this.gloomyWeatherStarted) {
             this.gloomyWeatherStarted = true;
             this.startGloomyWeatherTransition();
+        }
+        
+        // Smoothly slow down sheep movement at 2 seconds to prevent end-of-round glitching
+        if (this.timeLeft <= 2 && !this.sheepFrozenForEnd) {
+            this.sheepFrozenForEnd = true;
+            this.sheep.getChildren().forEach(s => {
+                // Stop victory march behavior
+                s.isVictoryMarching = false;
+                s.victoryMoving = false;
+                
+                // Smoothly tween velocity to zero over 0.5 seconds
+                if (s.body) {
+                    this.tweens.add({
+                        targets: s.body.velocity,
+                        x: 0,
+                        y: 0,
+                        duration: 500,
+                        ease: 'Quad.easeOut'
+                    });
+                }
+            });
         }
         
         // Gentle tick sound for last 10 seconds
@@ -7637,6 +7667,7 @@ export class GameScene extends Phaser.Scene {
         this.finalCallSide = null; // Reset final call selection
         this.finalTrendSide = null;
         this.totalIdledCount = 0; // Reset cumulative counter
+        this.sheepFrozenForEnd = false; // Reset sheep freeze flag
         
         // Reload Player Level (in case it changed after a graduation)
         this.playerLevel = parseInt(localStorage.getItem('sheepMarket_playerLevel') || '1');

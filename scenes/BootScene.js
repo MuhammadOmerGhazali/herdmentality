@@ -625,7 +625,7 @@ export class BootScene extends Phaser.Scene {
             this.gameStarted = true;
 
             let name = input.value.trim();
-            if (!name) name = "Shepherd_" + Math.floor(Math.random() * 999);
+            if (!name) name = "NOVICE";
             
             // UI Feedback
             audioManager.playClick();
@@ -753,6 +753,13 @@ export class BootScene extends Phaser.Scene {
         
         guideBtnContainer.on('pointerdown', () => {
             audioManager.playClick();
+            
+            // Use "NOVICE" as default name if player hasn't entered one
+            let name = input.value.trim();
+            if (!name) {
+                name = "NOVICE";
+                localStorage.setItem('sheepMarket_playerName', name);
+            }
             
             // Clear endless mode flags when starting tutorial
             localStorage.setItem('sheepMarket_endlessMode', 'false');

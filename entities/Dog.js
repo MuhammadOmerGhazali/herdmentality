@@ -6,10 +6,10 @@ export class Dog extends Phaser.GameObjects.Container {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        // Create dog sprite (Border Collie - sprite faces RIGHT by default in the image)
+        // Create dog sprite (Border Collie - sprite faces LEFT by default in the image)
         this.dogSprite = scene.add.sprite(0, 0, 'sheepdog');
         this.dogSprite.setScale(0.15); // Slightly larger for better visibility
-        this.dogSprite.setFlipX(false); // Initially NOT flipped (sprite naturally faces right)
+        this.dogSprite.setFlipX(false); // Initially NOT flipped (sprite naturally faces left)
         this.add(this.dogSprite);
         
         // Create bone in mouth (positioned near mouth area, adjusts with facing)
@@ -69,15 +69,15 @@ export class Dog extends Phaser.GameObjects.Container {
                 this.scene.physics.velocityFromRotation(angle, this.speed, this.body.velocity);
                 
                 // Face direction of movement
-                // The sprite image naturally faces RIGHT, so flip it for LEFT movement
+                // The sprite image naturally faces LEFT, so flip it for RIGHT movement
                 if (this.body.velocity.x > 0) {
-                    this.dogSprite.setFlipX(false); // Moving right - don't flip (sprite naturally right)
+                    this.dogSprite.setFlipX(true); // Moving right - flip to face right
                     this.bone.x = 20; // Bone on right side (front of mouth)
                     this.bone.setRotation(-0.2); // Tilt for right-facing
                 } else if (this.body.velocity.x < 0) {
-                    this.dogSprite.setFlipX(true); // Moving left - flip sprite
-                    this.bone.x = -20; // Bone on left side (front of mouth when flipped)
-                    this.bone.setRotation(0.2); // Tilt matches flipped direction
+                    this.dogSprite.setFlipX(false); // Moving left - don't flip (sprite naturally left)
+                    this.bone.x = -20; // Bone on left side (front of mouth)
+                    this.bone.setRotation(0.2); // Tilt matches direction
                 }
                 
                 // Tail wag animation while running
@@ -130,7 +130,7 @@ export class Dog extends Phaser.GameObjects.Container {
         const droppedBone = this.scene.add.text(this.x, this.y, '🦴', {
             font: '48px Arial'
         }).setOrigin(0.5);
-        droppedBone.setDepth(this.depth - 1);
+        droppedBone.setDepth(this.depth + 10);
         
         // Bone drops and bounces to land below the dog
         this.scene.tweens.add({

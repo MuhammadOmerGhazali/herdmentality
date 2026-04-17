@@ -1116,9 +1116,8 @@ export class HUDScene extends Phaser.Scene {
             gameScene.events.emit('set-tutorial-mode', false);
         }
 
-        if (this.isTutorialActive) {
-            this.startTutorial();
-        }
+        // Tutorial will be started after wool introduction sequence completes
+        // (handled in showWalletUnlockTutorial or unlockWalletFromFreeWool)
 
         // Daily Login Bonus REMOVED - Only using FREE WOOL popup
 
@@ -2855,8 +2854,8 @@ export class HUDScene extends Phaser.Scene {
              if (this.isResolvingFreeWool) return;
              this.isResolvingFreeWool = true;
              
-             // Unlock controls
-             this.setControlsLocked(false);
+             // Controls will be unlocked by the next sequence (wallet tutorial or playStartSequence)
+             // Don't unlock here to avoid flickering
              
              // Restore call counters when popup closes (only if they've been used)
              if (this.leftCallCounter && this.leftCallCount > 0) {
@@ -2958,7 +2957,14 @@ export class HUDScene extends Phaser.Scene {
                     
                     if (this.isRetrying || hasSeenWalletTutorial) {
                         this.time.delayedCall(500, () => {
-                            this.playStartSequence();
+                            // Check if tutorial mode is active and start tutorial
+                            if (this.isTutorialActive) {
+                                this.startTutorial();
+                            } else {
+                                // Unlock controls before starting the game
+                                this.setControlsLocked(false);
+                                this.playStartSequence();
+                            }
                         });
                     } else {
                         // First time EVER: Show tutorial AFTER particles fly out
@@ -3144,11 +3150,12 @@ export class HUDScene extends Phaser.Scene {
         btn.on('pointerdown', () => {
             audioManager.playTyping();
             
-            // Unlock controls
+            container.destroy();
+            
+            // Unlock controls BEFORE callback (callback may re-lock for tutorial)
             this.setControlsLocked(false);
             
             if (callback) callback();
-            container.destroy();
         });
 
         container.add([bg, msg, btn]);
@@ -3259,7 +3266,15 @@ export class HUDScene extends Phaser.Scene {
                 
                 // START GAME NOW (Delayed by tutorial interaction)
                 const gameScene = this.scene.get('GameScene');
-                this.playStartSequence();
+                
+                // Check if tutorial mode is active and start tutorial after wool introduction
+                if (this.isTutorialActive) {
+                    this.startTutorial();
+                } else {
+                    // Unlock controls before starting the game
+                    this.setControlsLocked(false);
+                    this.playStartSequence();
+                }
             }
         );
 
@@ -3346,10 +3361,24 @@ export class HUDScene extends Phaser.Scene {
                                     console.log('Player has completed game - skipping starter wool grant, unlocking wallet directly');
                                     // Unlock wallet without granting wool (for completed players)
                                     this.unlockWalletAnimation(() => {
-                                        this.playStartSequence();
+                                        // Check if tutorial mode is active and start tutorial
+                                        if (this.isTutorialActive) {
+                                            this.startTutorial();
+                                        } else {
+                                            // Unlock controls before starting the game
+                                            this.setControlsLocked(false);
+                                            this.playStartSequence();
+                                        }
                                     });
                                 } else {
-                                    this.playStartSequence();
+                                    // Check if tutorial mode is active and start tutorial
+                                    if (this.isTutorialActive) {
+                                        this.startTutorial();
+                                    } else {
+                                        // Unlock controls before starting the game
+                                        this.setControlsLocked(false);
+                                        this.playStartSequence();
+                                    }
                                 }
                             }
                         }
@@ -7536,16 +7565,22 @@ export class HUDScene extends Phaser.Scene {
      * Used by ALL buttons when locked or unavailable
      */
     standardLockedShake(btn) {
-        if (!btn || !btn.container) return;
+        // NOTE: Haptic feedback is now handled by the caller to avoid double-vibration
+        // (calling navigator.vibrate twice in quick succession cancels the first vibration)
         
+        // Play audio feedback
         audioManager.playLockedThud();
-        this.tweens.add({
-            targets: btn.container,
-            scale: 1.15,
-            duration: 100,
-            yoyo: true,
-            ease: 'Back.easeOut'
-        });
+        
+        // Visual feedback (only if container exists)
+        if (btn && btn.container) {
+            this.tweens.add({
+                targets: btn.container,
+                scale: 1.15,
+                duration: 100,
+                yoyo: true,
+                ease: 'Back.easeOut'
+            });
+        }
     }
     
     /**
@@ -7929,6 +7964,7 @@ export class HUDScene extends Phaser.Scene {
     shakeButton(btn) {
         // STANDARD SHAKE ANIMATION for locked/unavailable buttons
         // Used for: locked buttons, count=0 grass, count=0 bones, etc.
+        // NOTE: Haptic feedback is now handled by the caller to avoid double-vibration
         
         if (!btn || !btn.container) return;
         
@@ -7989,7 +8025,13 @@ export class HUDScene extends Phaser.Scene {
             
             // Check if locked
             if (btn.locked) {
-                this.standardLockedShake(btn);
+                console.log('🔑 Golden Key is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                audioManager.playLockedThud();
+                this.shakeButton(btn);
                 return;
             }
             
@@ -7997,6 +8039,12 @@ export class HUDScene extends Phaser.Scene {
             if (localStorage.getItem('sheepMarket_globalUnlock') === 'true') {
                 console.log('🔑 All levels already unlocked!');
                 audioManager.playClick();
+                
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                
                 return;
             }
             
@@ -8007,6 +8055,11 @@ export class HUDScene extends Phaser.Scene {
             
             // Play celebratory sound
             audioManager.playCoin();
+            
+            // Haptic feedback for successful activation
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
             
             // Flash button golden
             this.tweens.add({
@@ -8068,7 +8121,13 @@ export class HUDScene extends Phaser.Scene {
             
             // Check if locked
             if (btn.locked) {
-                this.standardLockedShake(btn);
+                console.log('🍀 Golden Clover is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                audioManager.playLockedThud();
+                this.shakeButton(btn);
                 return;
             }
             
@@ -8194,6 +8253,11 @@ export class HUDScene extends Phaser.Scene {
             gameScene.events.emit('ability-goldenclover', { cost: cost });
             audioManager.playClick();
             
+            // Haptic feedback for successful activation
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
+            
             // Start countdown overlay (matches level timer)
             btn.countdownActive = true;
             btn.countdownStartTime = gameScene.timeLeft; // Start countdown from current level timer
@@ -8248,7 +8312,13 @@ export class HUDScene extends Phaser.Scene {
             
             // Check if locked
             if (btn.locked) {
-                this.standardLockedShake(btn);
+                console.log('🐕 Dog button is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                audioManager.playLockedThud();
+                this.shakeButton(btn);
                 return;
             }
             
@@ -8299,6 +8369,11 @@ export class HUDScene extends Phaser.Scene {
             gameScene.events.emit('ability-herd-dog', { cost: cost });
             audioManager.playClick();
             
+            // Haptic feedback for successful activation
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
+            
             // Cooldown will start AFTER dog returns (handled in GameScene stopHerding)
             
             return; // Exit early - handled
@@ -8323,7 +8398,13 @@ export class HUDScene extends Phaser.Scene {
             
             // Check if locked
             if (btn.locked) {
-                this.standardLockedShake(btn);
+                console.log('🐑 Black Sheep is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                audioManager.playLockedThud();
+                this.shakeButton(btn);
                 return;
             }
             
@@ -8357,6 +8438,11 @@ export class HUDScene extends Phaser.Scene {
             // Enter placement mode in GameScene
             gameScene.enterBlackSheepPlacementMode();
             audioManager.playClick();
+            
+            // Haptic feedback for successful activation
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
             
             // Mark as used this level immediately (prevents double-click)
             btn.usedThisLevel = true;
@@ -8395,6 +8481,11 @@ export class HUDScene extends Phaser.Scene {
 
         // LOCKED BUTTON LOGIC
         if (btn.locked) {
+            console.log(`🔒 Button ${index} is LOCKED - triggering vibration (generic handler)`);
+            // Haptic feedback FIRST
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
             audioManager.playLockedThud();
             
             // Shake the button to indicate locked (STANDARD SHAKE)
@@ -8415,6 +8506,17 @@ export class HUDScene extends Phaser.Scene {
         } else if (index === 3) {
             // Grass tuft ability
             const gameScene = this.scene.get('GameScene');
+            
+            // Check if locked
+            if (btn.locked) {
+                console.log('🌱 Grass button is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                this.standardLockedShake(btn);
+                return;
+            }
             
             // Check if player is in free play mode (won Level 12)
             const inFreePlayMode = this.goldenKeyActivated && this.allLevelsUnlockedByGoldenKey;
@@ -8458,6 +8560,11 @@ export class HUDScene extends Phaser.Scene {
                 // Enable grass placement mode (cost will be deducted when grass is placed)
                 gameScene.events.emit('enable-grass-placement');
                 audioManager.playClick();
+                
+                // Haptic feedback for successful activation
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
                 
                 return; // Don't process cost/cooldown yet - wait for placement
             }
@@ -8514,6 +8621,11 @@ export class HUDScene extends Phaser.Scene {
                 // Play sound
                 audioManager.playClick();
                 
+                // Haptic feedback for successful activation
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                
                 // Show success message
                 this.showBurstText(CONFIG.width / 2, CONFIG.height / 2 - 100, "Grass removed!", "#44ff44");
             }
@@ -8531,6 +8643,17 @@ export class HUDScene extends Phaser.Scene {
         } else if (index === 4) {
             // Lawn mower ability - Enable grass selection mode
             const gameScene = this.scene.get('GameScene');
+            
+            // Check if locked
+            if (btn.locked) {
+                console.log('🚜 Lawn mower button is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                this.standardLockedShake(btn);
+                return;
+            }
             
             // Mark that lawn mower has been clicked (prevents "CLICK ME!" from showing again)
             this.lawnMowerHasBeenClicked = true;
@@ -8554,10 +8677,26 @@ export class HUDScene extends Phaser.Scene {
             gameScene.events.emit('enable-grass-selection');
             audioManager.playClick();
             
+            // Haptic feedback for successful activation
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
+            
             return; // Don't process cost/cooldown yet - wait for grass selection
         } else if (index === 5) {
             // Bone placement ability (Level 7+) - Place bone to distract wolves
             const gameScene = this.scene.get('GameScene');
+            
+            // Check if locked
+            if (btn.locked) {
+                console.log('🦴 Bone button is LOCKED - triggering vibration');
+                // Haptic feedback FIRST
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                this.standardLockedShake(btn);
+                return;
+            }
             
             // Check if in Level 7-12 OR endless mode
             if (!this.isEndlessMode && (gameScene.activeLevel < 7 || gameScene.activeLevel > 12)) {
@@ -8589,6 +8728,11 @@ export class HUDScene extends Phaser.Scene {
             // Enable bone placement mode (similar to grass placement)
             gameScene.events.emit('enable-bone-placement');
             audioManager.playClick();
+            
+            // Haptic feedback for successful activation
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
             
             return; // Don't process cost/cooldown yet - wait for bone placement
         } else {
@@ -8633,6 +8777,11 @@ export class HUDScene extends Phaser.Scene {
         btn.bg.strokeCircle(0, 0, radius);
 
         audioManager.playClick();
+        
+        // Haptic feedback for successful activation
+        if (navigator.vibrate) {
+            navigator.vibrate(30);
+        }
         
         // Pulse effect
         this.tweens.add({
@@ -13965,17 +14114,27 @@ export class HUDScene extends Phaser.Scene {
                 this.showTutorialPopup(
                     "Each CALL is a bet using your wool. Try calling LEFT.",
                     () => {
+                        // Unlock controls before starting the game
                         this.setControlsLocked(false);
+                        
+                        // Start the game properly with countdown and timer
+                        this.playStartSequence();
+                        
+                        // Set up tutorial state for when player makes their first bet
                         this.tutorialWaitingForBet = true;
-                        if (this.buttonManager && this.buttonManager.leftButton && this.buttonManager.rightButton) {
-                            this.tutorialHighlightTween = this.tweens.add({
-                                targets: [this.buttonManager.leftButton.container, this.buttonManager.rightButton.container],
-                                scale: 1.1,
-                                yoyo: true,
-                                repeat: -1,
-                                duration: 500
-                            });
-                        }
+                        
+                        // Highlight buttons after a delay (after GO! animation)
+                        this.time.delayedCall(3000, () => {
+                            if (this.buttonManager && this.buttonManager.leftButton && this.buttonManager.rightButton) {
+                                this.tutorialHighlightTween = this.tweens.add({
+                                    targets: [this.buttonManager.leftButton.container, this.buttonManager.rightButton.container],
+                                    scale: 1.1,
+                                    yoyo: true,
+                                    repeat: -1,
+                                    duration: 500
+                                });
+                            }
+                        });
                     }
                 );
                 break;
@@ -14032,17 +14191,10 @@ export class HUDScene extends Phaser.Scene {
                 
             case 9:
                 this.showTutorialPopup(
-                    "The FINAL CALL is the side with more sheep at the end.",
+                    "Whichever final call you make in the last 15 seconds decides if you win or lose.",
                     () => {
-                        if (this.buttonManager && this.buttonManager.leftButton && this.buttonManager.rightButton) {
-                            this.tutorialHighlightTween = this.tweens.add({
-                                targets: [this.buttonManager.leftButton.container, this.buttonManager.rightButton.container],
-                                scale: 1.1,
-                                yoyo: true,
-                                repeat: -1,
-                                duration: 500
-                            });
-                        }
+                        // Immediately show the next popup about winning/losing
+                        this.advanceTutorialStep(10);
                     }
                 );
                 break;
@@ -14074,12 +14226,12 @@ export class HUDScene extends Phaser.Scene {
         
         const uiContainer = this.add.container(CONFIG.width / 2, CONFIG.height / 2);
         
-        // Modal Bg
+        // Modal Bg - Updated to match wool popup colors
         const modalBg = this.add.graphics();
-        modalBg.fillStyle(0x3E2723, 1);
-        modalBg.fillRoundedRect(-300, -150, 600, 300, 16);
-        modalBg.lineStyle(4, 0x8D6E63, 1);
-        modalBg.strokeRoundedRect(-300, -150, 600, 300, 16);
+        modalBg.fillStyle(0x161a1e, 0.95); // Dark background like wool popup
+        modalBg.fillRoundedRect(-300, -150, 600, 300, 25);
+        modalBg.lineStyle(4, 0xfcd535, 1); // Gold border like wool popup
+        modalBg.strokeRoundedRect(-300, -150, 600, 300, 25);
         
         const popupText = this.add.text(0, -30, text, {
             font: 'bold 28px Inter',
@@ -14088,16 +14240,14 @@ export class HUDScene extends Phaser.Scene {
             wordWrap: { width: 500 }
         }).setOrigin(0.5);
         
-        // Button
+        // Button - Updated to match wool popup button style
         const btnBg = this.add.graphics();
-        btnBg.fillStyle(0x228B22, 1);
-        btnBg.fillRoundedRect(-80, 50, 160, 60, 12);
-        btnBg.lineStyle(2, 0xFFD700, 1);
-        btnBg.strokeRoundedRect(-80, 50, 160, 60, 12);
+        btnBg.fillStyle(0xfcd535, 1); // Gold button like wool popup
+        btnBg.fillRoundedRect(-80, 50, 160, 60, 10);
         
         const btnText = this.add.text(0, 80, "Continue", {
-            font: 'bold 22px Inter',
-            fill: '#ffffff'
+            font: '900 22px Inter',
+            fill: '#000000' // Black text on gold button
         }).setOrigin(0.5);
         
         uiContainer.add([modalBg, popupText, btnBg, btnText]);

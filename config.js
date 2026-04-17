@@ -109,15 +109,15 @@ export const ABILITY_CONFIG = {
     },
     grass: {
         cost: 10,
-        cooldown: 5000   // 5 seconds
+        cooldown: 0  // 5 seconds
     },
     lawnMower: {
         cost: 0,
-        cooldown: 30000  // 30 seconds
+        cooldown: 0  // 30 seconds
     },
     bone: {
         cost: 10,
-        cooldown: 5000   // 5 seconds
+        cooldown: 0   // 5 seconds
     },
     blackSheep: {
         cost: 0,

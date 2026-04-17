@@ -337,23 +337,17 @@ class GameFlowManager {
         if (!this._lock('newGame')) return;
 
         console.log('[GameFlowManager] 🆕 newGame – resetting all progress');
+        console.log('[GameFlowManager] 💣 Nuking all localStorage records');
 
-        const keysToClear = [
-            'sheepMarket_playerLevel',
-            'sheepMarket_history',
-            'sheepMarket_lifetimeGains',
-            'sheepMarket_lifetimeLosses',
-            'sheepMarket_lifetimeSpentCalls',
-            'sheepMarket_perLevelCallLosses',
-            'sheepMarket_finalCallHistory',
-            'sheepMarket_levelPerformance',
-            'sheepMarket_perLevelCallHistory',
-            'sheepMarket_winStreak',
-            'sheepMarket_callEfficiencyHistory',
-            'sheepMarket_gameScore',
-            ...Array.from({ length: 12 }, (_, i) => `sheepMarket_level${i + 1}StartBalance`),
-        ];
-        keysToClear.forEach(k => localStorage.removeItem(k));
+        // Clear ALL localStorage records (nuclear option)
+        localStorage.clear();
+        
+        // Force authService to reinitialize with new visitorId
+        authService.user = null;
+        authService.visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        localStorage.setItem('sheepMarket_visitorId', authService.visitorId);
+        
+        // Reset balance to 0
         authService.saveBalance(0);
 
         this._emit('flow:new-game', {});
